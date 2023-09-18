@@ -29,33 +29,38 @@ import java.util.TimerTask;
 @Autonomous(name="EncoderNessieAuto")
 public class EncoderNessieAuto extends LinearOpMode {
 
-    class lowerArmToLowPosition extends TimerTask {
-        public void run() {
-            ElbowL.getController().setServoPosition(ElbowL.getPortNumber(), ElbowLBackwardPosition );
-            ElbowR.getController().setServoPosition(ElbowR.getPortNumber(), ElbowRBackwardPosition );
-
-            telemetry.addData("AAAAA", 3);
-            telemetry.update();
-        }
+    enum ParkingSpace {
+        UNO,
+        DOS,
+        TRES
     }
+    // class lowerArmToLowPosition extends TimerTask {
+    //     public void run() {
+    //         ElbowL.getController().setServoPosition(ElbowL.getPortNumber(), ElbowLBackwardPosition );
+    //         ElbowR.getController().setServoPosition(ElbowR.getPortNumber(), ElbowRBackwardPosition );
 
-    class lowerArmToMediumPosition extends TimerTask {
-        public void run() {
+    //         telemetry.addData("AAAAA", 3);
+    //         telemetry.update();
+    //     }
+    // }
 
-            ElbowL.getController().setServoPosition(ElbowL.getPortNumber(), ElbowLBackwardPosition - 0.03);
-            ElbowR.getController().setServoPosition(ElbowR.getPortNumber(), ElbowRBackwardPosition + 0.03);
-        }
-    }
+    // class lowerArmToMediumPosition extends TimerTask {
+    //     public void run() {
 
-    class lowerArmToHighPosition extends TimerTask {
-        public void run() {
-            ElbowL.getController().setServoPosition(ElbowL.getPortNumber(), ElbowLBackwardPosition - 0.07);
-            ElbowR.getController().setServoPosition(ElbowR.getPortNumber(), ElbowRBackwardPosition + 0.07);
+    //         ElbowL.getController().setServoPosition(ElbowL.getPortNumber(), ElbowLBackwardPosition - 0.03);
+    //         ElbowR.getController().setServoPosition(ElbowR.getPortNumber(), ElbowRBackwardPosition + 0.03);
+    //     }
+    // }
 
-            telemetry.addData("AAAAA", 3);
-            telemetry.update();
-        }
-    }
+    // class lowerArmToHighPosition extends TimerTask {
+    //     public void run() {
+    //         ElbowL.getController().setServoPosition(ElbowL.getPortNumber(), ElbowLBackwardPosition - 0.07);
+    //         ElbowR.getController().setServoPosition(ElbowR.getPortNumber(), ElbowRBackwardPosition + 0.07);
+
+    //         telemetry.addData("AAAAA", 3);
+    //         telemetry.update();
+    //     }
+    // }
 
     class closeClaw extends TimerTask {
         public void run() {
@@ -69,29 +74,29 @@ public class EncoderNessieAuto extends LinearOpMode {
         }
     }
     private final int numberOfRowsToScanInImage = 30;
-    private final int timeToRaiseArmToMediumJunction = 1200;
+    private final int timeToRaiseArmToBackdrop = 1200;
     private Servo Finger;
-    private CRServo Spinner;
-    private CRServo ElbowL;
-    private CRServo ElbowR;
+    // private CRServo Spinner;
+    // private CRServo ElbowL;
+    // private CRServo ElbowR;
     private DcMotor VerticalSlidePackL;
     private DcMotor VerticalSlidePackR;
     private final double SlidePackSpeed = 1.0;
     private final double FingerReleasePosition = 0.61;
     private final double FingerGrabPosition = 0.65;
-    private final double SpinnerForwardPosition = .6;//0.9;
-    private final double SpinnerBackwardPosition = .05; //0.35;
-    private final double SpinnerIntermediatePosition = .78; //0.68;
+    // private final double SpinnerForwardPosition = .6;//0.9;
+    // private final double SpinnerBackwardPosition = .05; //0.35;
+    // private final double SpinnerIntermediatePosition = .78; //0.68;
     //    private final double SpinnerGrabbingPosition = 1.0;
-    private final double ElbowLForwardPosition = 0.15;
-    private final double ElbowLBackwardPosition = 0.95;
-    private final double ElbowLIntermediatePosition = 0.39;
-    private final double ElbowRForwardPosition = 0.81;
-    private final double ElbowRBackwardPosition = 0.05;
-    private final double ElbowRIntermediatePosition = 0.575;
-    private NessieTeleop.PoleHeight CurrentPoleHeight = NessieTeleop.PoleHeight.GROUND;
-    private NessieTeleop.FingerHeight CurrentFingerHeight = NessieTeleop.FingerHeight.LOW;
-    private NessieAuto.ParkingSpace parkingSpace = NessieAuto.ParkingSpace.UNO;
+    // private final double ElbowLForwardPosition = 0.15;
+    // private final double ElbowLBackwardPosition = 0.95;
+    // private final double ElbowLIntermediatePosition = 0.39;
+    // private final double ElbowRForwardPosition = 0.81;
+    // private final double ElbowRBackwardPosition = 0.05;
+    // private final double ElbowRIntermediatePosition = 0.575;
+    private NessieTeleop.PixelHeight CurrentPixelHeight = NessieTeleop.PixelHeight.GROUND;
+    // private NessieTeleop.FingerHeight CurrentFingerHeight = NessieTeleop.FingerHeight.LOW;
+    private ParkingSpace parkingSpace = ParkingSpace.UNO;
     private static final String VUFORIA_KEY = "AVPRW+T/////AAABmYg0Njwhc0n/teI+7Sz8f/Baxyp0o6W48fBEflz8RZs3G/bVjI/5PyebGV6SkXhE1unHTRVzOVCo2cuuePhML8YCeHWm1dHZ2KbshLfc/yne7rfe2VaKPR3rrJXPF5CdMTWj4nTxm6w7KxiqvtvF2p2si1FrculcXUwbHeZ9X3O6VSntXMuNJDxXJEC3O5hT5kb7ZzsSWlot9YfUqJRxttrYYz8Xu1D2IhtOs26a2A9FC8afgGouyHucBDfl+WP59+H6wYaXRbyvcFdytq9Fp7mlSsA9RA6DV70PtJWDmehLO5hhOKq4ihVNCjJcgG38UefDAyDhWWMdjRwsiaVctq6QkmG1oMuTfIF1Dun2lDpZ";
     private VuforiaLocalizer vuforia;
 
@@ -99,20 +104,20 @@ public class EncoderNessieAuto extends LinearOpMode {
 
     private Timer timer = new Timer();
     private ElapsedTime eTime = new ElapsedTime();
-    private final double ANGLE_1 = 0.40;
+    // private final double ANGLE_1 = 0.40;
 
     @Override
     public void runOpMode() {
         Finger = hardwareMap.servo.get("FG");
-        Spinner = hardwareMap.crservo.get("SP");
-        ElbowL = hardwareMap.crservo.get("EL");
-        ElbowR = hardwareMap.crservo.get("ER");
+        // Spinner = hardwareMap.crservo.get("SP");
+        // ElbowL = hardwareMap.crservo.get("EL");
+        // ElbowR = hardwareMap.crservo.get("ER");
         VerticalSlidePackL = hardwareMap.dcMotor.get("VSPL");
         VerticalSlidePackR = hardwareMap.dcMotor.get("VSPR");
 
         // Set Directions
         Finger.setDirection(Servo.Direction.FORWARD);
-        Spinner.setDirection(CRServo.Direction.FORWARD);
+        // Spinner.setDirection(CRServo.Direction.FORWARD);
         VerticalSlidePackL.setDirection(DcMotor.Direction.REVERSE);
         VerticalSlidePackR.setDirection(DcMotor.Direction.FORWARD);
 
@@ -121,70 +126,70 @@ public class EncoderNessieAuto extends LinearOpMode {
 
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
-        Pose2d startPose = new Pose2d(36, -62, Math.toRadians(90));
+        Pose2d startPose = new Pose2d(36, -60, Math.toRadians(90));
 
         drive.setPoseEstimate(startPose);
 
         TrajectorySequenceBuilder tsb = drive.trajectorySequenceBuilder(startPose)
-                .UNSTABLE_addTemporalMarkerOffset(0.5, () -> {
-                    Finger.setPosition(FingerGrabPosition);
-                    Spinner.getController().setServoPosition(Spinner.getPortNumber(), SpinnerIntermediatePosition);
-                    ElbowL.getController().setServoPosition(ElbowL.getPortNumber(), ElbowLIntermediatePosition);
-                    ElbowR.getController().setServoPosition(ElbowR.getPortNumber(), ElbowRIntermediatePosition);
-                })
-                .lineTo(new Vector2d(36, -14))
-                .turn(Math.toRadians(90))
-                .lineTo(new Vector2d(48, -14))
-                .turn(ANGLE_1)
-                .UNSTABLE_addTemporalMarkerOffset(0, () -> {
-                    moveSlidePack(NessieTeleop.SlidePackDirection.UP, SlidePackSpeed, timeToRaiseArmToMediumJunction);
-                })
-                .UNSTABLE_addTemporalMarkerOffset(0.7, () -> {
-                    Spinner.getController().setServoPosition(Spinner.getPortNumber(), SpinnerForwardPosition);
-                    ElbowL.getController().setServoPosition(ElbowL.getPortNumber(), ElbowLForwardPosition);
-                    ElbowR.getController().setServoPosition(ElbowR.getPortNumber(), ElbowRForwardPosition);
-                })
-                .UNSTABLE_addTemporalMarkerOffset(2, () -> {
-                    timer.schedule(new openClaw(), 0);
-                })
-                .UNSTABLE_addTemporalMarkerOffset(2.5, () -> {
-                    timer.schedule(new lowerArmToHighPosition(), 0);
-                    Spinner.getController().setServoPosition(Spinner.getPortNumber(), SpinnerBackwardPosition);
-                    moveSlidePack(NessieTeleop.SlidePackDirection.DOWN, SlidePackSpeed, timeToRaiseArmToMediumJunction);
-                })
-                .waitSeconds(2.5)
-                .turn(-ANGLE_1)
-                .lineTo(new Vector2d(59.5, -14))
-                .UNSTABLE_addTemporalMarkerOffset(0, () -> {
-                    timer.schedule(new closeClaw(), 0);
-                })
-                .UNSTABLE_addTemporalMarkerOffset(0.3, () -> {
-                    Spinner.getController().setServoPosition(Spinner.getPortNumber(), SpinnerIntermediatePosition);
-                    ElbowL.getController().setServoPosition(ElbowL.getPortNumber(), ElbowLIntermediatePosition);
-                    ElbowR.getController().setServoPosition(ElbowR.getPortNumber(), ElbowRIntermediatePosition);
-                })
-                .waitSeconds(1)
-                .lineTo(new Vector2d(47, -14))
-                .turn(ANGLE_1)
-                .UNSTABLE_addTemporalMarkerOffset(0, () -> {
-                    moveSlidePack(NessieTeleop.SlidePackDirection.UP, SlidePackSpeed, timeToRaiseArmToMediumJunction);
-                })
-                .UNSTABLE_addTemporalMarkerOffset(0.7, () -> {
-                    Spinner.getController().setServoPosition(Spinner.getPortNumber(), SpinnerForwardPosition);
-                    ElbowL.getController().setServoPosition(ElbowL.getPortNumber(), ElbowLForwardPosition);
-                    ElbowR.getController().setServoPosition(ElbowR.getPortNumber(), ElbowRForwardPosition);
-                })
-                .UNSTABLE_addTemporalMarkerOffset(2, () -> {
-                    timer.schedule(new openClaw(), 0);
-                    timer.schedule(new closeClaw(), 500);
-                })
-                .UNSTABLE_addTemporalMarkerOffset(2.5, () -> {
-                    timer.schedule(new lowerArmToLowPosition(), 0);
-                    Spinner.getController().setServoPosition(Spinner.getPortNumber(), SpinnerIntermediatePosition);
-                    moveSlidePack(NessieTeleop.SlidePackDirection.DOWN, SlidePackSpeed, timeToRaiseArmToMediumJunction);
-                })
-                .waitSeconds(2.5)
-                .turn(-ANGLE_1);
+                // .UNSTABLE_addTemporalMarkerOffset(0.5, () -> {
+                //     Finger.setPosition(FingerGrabPosition);
+                    // Spinner.getController().setServoPosition(Spinner.getPortNumber(), SpinnerIntermediatePosition);
+                    // ElbowL.getController().setServoPosition(ElbowL.getPortNumber(), ElbowLIntermediatePosition);
+                    // ElbowR.getController().setServoPosition(ElbowR.getPortNumber(), ElbowRIntermediatePosition);
+                // })
+                // .lineTo(new Vector2d(36, -14))
+                // .turn(Math.toRadians(90))
+                // .lineTo(new Vector2d(48, -14))
+                // .turn(ANGLE_1)
+                // .UNSTABLE_addTemporalMarkerOffset(0, () -> {
+                //     moveSlidePack(NessieTeleop.SlidePackDirection.UP, SlidePackSpeed, timeToRaiseArmToMediumJunction);
+                // })
+                // .UNSTABLE_addTemporalMarkerOffset(0.7, () -> {
+                //     Spinner.getController().setServoPosition(Spinner.getPortNumber(), SpinnerForwardPosition);
+                //     ElbowL.getController().setServoPosition(ElbowL.getPortNumber(), ElbowLForwardPosition);
+                //     ElbowR.getController().setServoPosition(ElbowR.getPortNumber(), ElbowRForwardPosition);
+                // })
+                // .UNSTABLE_addTemporalMarkerOffset(2, () -> {
+                //     timer.schedule(new openClaw(), 0);
+                // })
+                // .UNSTABLE_addTemporalMarkerOffset(2.5, () -> {
+                //     timer.schedule(new lowerArmToHighPosition(), 0);
+                //     Spinner.getController().setServoPosition(Spinner.getPortNumber(), SpinnerBackwardPosition);
+                //     moveSlidePack(NessieTeleop.SlidePackDirection.DOWN, SlidePackSpeed, timeToRaiseArmToMediumJunction);
+                // })
+                // .waitSeconds(2.5)
+                // .turn(-ANGLE_1)
+                // .lineTo(new Vector2d(59.5, -14))
+                // .UNSTABLE_addTemporalMarkerOffset(0, () -> {
+                //     timer.schedule(new closeClaw(), 0);
+                // })
+                // .UNSTABLE_addTemporalMarkerOffset(0.3, () -> {
+                //     Spinner.getController().setServoPosition(Spinner.getPortNumber(), SpinnerIntermediatePosition);
+                //     ElbowL.getController().setServoPosition(ElbowL.getPortNumber(), ElbowLIntermediatePosition);
+                //     ElbowR.getController().setServoPosition(ElbowR.getPortNumber(), ElbowRIntermediatePosition);
+                // })
+                // .waitSeconds(1)
+                // .lineTo(new Vector2d(47, -14))
+                // .turn(ANGLE_1)
+                // .UNSTABLE_addTemporalMarkerOffset(0, () -> {
+                //     moveSlidePack(NessieTeleop.SlidePackDirection.UP, SlidePackSpeed, timeToRaiseArmToMediumJunction);
+                // })
+                // .UNSTABLE_addTemporalMarkerOffset(0.7, () -> {
+                //     Spinner.getController().setServoPosition(Spinner.getPortNumber(), SpinnerForwardPosition);
+                //     ElbowL.getController().setServoPosition(ElbowL.getPortNumber(), ElbowLForwardPosition);
+                //     ElbowR.getController().setServoPosition(ElbowR.getPortNumber(), ElbowRForwardPosition);
+                // })
+                // .UNSTABLE_addTemporalMarkerOffset(2, () -> {
+                //     timer.schedule(new openClaw(), 0);
+                //     timer.schedule(new closeClaw(), 500);
+                // })
+                // .UNSTABLE_addTemporalMarkerOffset(2.5, () -> {
+                //     timer.schedule(new lowerArmToLowPosition(), 0);
+                //     Spinner.getController().setServoPosition(Spinner.getPortNumber(), SpinnerIntermediatePosition);
+                //     moveSlidePack(NessieTeleop.SlidePackDirection.DOWN, SlidePackSpeed, timeToRaiseArmToMediumJunction);
+                // })
+                // .waitSeconds(2.5)
+                // .turn(-ANGLE_1);
 
         boolean isCameraReady = getCameraReady();
 
@@ -194,7 +199,6 @@ public class EncoderNessieAuto extends LinearOpMode {
 
         if (isCameraReady) {
             parkingSpace = getCameraReading();
-//            parkingSpace = NessieAuto.ParkingSpace.TRES;
         }
 
         telemetry.addData("parkingSpace", parkingSpace);
@@ -202,13 +206,13 @@ public class EncoderNessieAuto extends LinearOpMode {
 
         switch (parkingSpace) {
             case UNO:
-                tsb.lineTo(new Vector2d(12, -13));
+                // tsb.lineTo(new Vector2d(12, -13));
                 break;
             case DOS:
-                tsb.lineTo(new Vector2d(36, -13));
+                // tsb.lineTo(new Vector2d(36, -13));
                 break;
             case TRES:
-                tsb.lineTo(new Vector2d(60, -13));
+                // tsb.lineTo(new Vector2d(60, -13));
                 break;
         }
 
@@ -295,7 +299,7 @@ public class EncoderNessieAuto extends LinearOpMode {
         return true;
     }
 
-    private NessieAuto.ParkingSpace getCameraReading() {
+    private ParkingSpace getCameraReading() {
         VuforiaLocalizer.CloseableFrame frame = null;
         try {
             frame = vuforia.getFrameQueue().take(); //takes the frame at the head of the queue
@@ -303,7 +307,7 @@ public class EncoderNessieAuto extends LinearOpMode {
             telemetry.addData("e", "E");
             telemetry.update();
         }
-        if (frame == null) return NessieAuto.ParkingSpace.UNO;
+        if (frame == null) return ParkingSpace.UNO;
         long numImages = frame.getNumImages();
         telemetry.addData("numImages", numImages);
         telemetry.update();
@@ -351,10 +355,10 @@ public class EncoderNessieAuto extends LinearOpMode {
 //        sleep(5000);
 
         if (max_index == 0)
-            return NessieAuto.ParkingSpace.UNO;
+            return ParkingSpace.UNO;
         if (max_index == 1)
-            return NessieAuto.ParkingSpace.DOS;
-        return NessieAuto.ParkingSpace.TRES;
+            return ParkingSpace.DOS;
+        return ParkingSpace.TRES;
     }
 
     private int[] getRowStartingIndexes(int height, int width, int numRows) {
