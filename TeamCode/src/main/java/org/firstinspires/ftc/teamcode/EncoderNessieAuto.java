@@ -318,7 +318,7 @@ public class EncoderNessieAuto extends LinearOpMode {
             }
         }
 
-        int[] colors = {0, 0, 0, 0};
+        int[] position = {0, 0, 0, 0};
 
         if (image != null) {
             ByteBuffer pixels = image.getPixels();
@@ -327,16 +327,17 @@ public class EncoderNessieAuto extends LinearOpMode {
             int imgWidth = image.getWidth();
             int imgHeight = image.getHeight();
             int[] startingIndexes = getRowStartingIndexes(imgHeight, imgWidth, numberOfRowsToScanInImage);
-            for (int i = numberOfRowsToScanInImage / 3; i < numberOfRowsToScanInImage * 2 / 3; i++) {
-                for (int j = startingIndexes[i] + imgWidth * 2 / 3; j < startingIndexes[i] + imgWidth * 2 * 2/3; j += 2) {
-                    colors[getColor(pixelArray[j], pixelArray[j+1])]++;
-                    telemetry.addData("width", imgWidth);
-                    telemetry.addData("height", imgHeight);
-                    telemetry.addData("startingIndexes[i]", startingIndexes[i]);
-                    telemetry.addData("yellow", colors[0]);
-                    telemetry.addData("green", colors[1]);
-                    telemetry.addData("black", colors[2]);
-                    telemetry.update();
+            for (int i = numberOfRowsToScanInImage; i < numberOfRowsToScanInImage; i++) {
+                for (int j = startingIndexes[i]; j < startingIndexes[i] + imgWidth * 2; j += 8) {
+                    if (getColor(pixelArray[j], pixelArray[j+1]))
+                        position[(double) (j - startingIndexes[i]) / (imgWidth * 2 / 3)]++;
+                    // telemetry.addData("width", imgWidth);
+                    // telemetry.addData("height", imgHeight);
+                    // telemetry.addData("startingIndexes[i]", startingIndexes[i]);
+                    // telemetry.addData("yellow", colors[0]);
+                    // telemetry.addData("green", colors[1]);
+                    // telemetry.addData("black", colors[2]);
+                    // telemetry.update();
                 }
             }
         }
@@ -344,13 +345,13 @@ public class EncoderNessieAuto extends LinearOpMode {
         frame.close();
         int max_index = 0;
         for (int i = 0; i < 3; i++) {
-            if (colors[i] > colors[max_index])
+            if (position[i] > position[max_index])
                 max_index = i;
         }
 
-        telemetry.addData("yellow", colors[0]);
-        telemetry.addData("green", colors[1]);
-        telemetry.addData("black", colors[2]);
+        telemetry.addData("1", position[0]);
+        telemetry.addData("2", position[1]);
+        telemetry.addData("3", position[2]);
         telemetry.update();
 //        sleep(5000);
 
@@ -381,57 +382,53 @@ public class EncoderNessieAuto extends LinearOpMode {
         String b = s2.substring(3);
         color[0] = convertBitStringToInt(r);
         color[1] = convertBitStringToInt(g);
-        color[2] = convertBitStringToInt(b);
-        double[] hsv = convertRGBtoHSV(color);
-        telemetry.addData("hsv", hsv[0]);
-        telemetry.addData("hsv", hsv[1]);
-        telemetry.addData("hsv", hsv[2]);
-        telemetry.addData("b1", b1);
-        telemetry.addData("b2", b2);
-        telemetry.addData("hsv[2]", hsv[2]);
-        if (hsv[2] < 0.3)
-            return 2;
-        if (hsv[0] >= 70 && hsv[0] <= 155 && hsv[1] > 0.15 && hsv[2] > 0.2)
-            return 1;
-        if (hsv[0] >= 45 && hsv[0] <= 70 && hsv[1] > 0.15 && hsv[2] > 0.5)
-            return 0;
-        return 3;
+        // color[2] = convertBitStringToInt(b);
+        // double[] hsv = convertRGBtoHSV(color);
+        // telemetry.addData("hsv", hsv[0]);
+        // telemetry.addData("hsv", hsv[1]);
+        // telemetry.addData("hsv", hsv[2]);
+        // telemetry.addData("b1", b1);
+        // telemetry.addData("b2", b2);
+        // telemetry.addData("hsv[2]", hsv[2]);
+        if (r > 16 || b > 16)
+            return true;
+        return false;
     }
 
-    private double[] convertRGBtoHSV(int[] rgb) {
-        double rPrime = (double) rgb[0]/31;
-        double gPrime = (double) rgb[1]/63;
-        double bPrime = (double) rgb[2]/31;
-        double cMax = Math.max(rPrime, Math.max(gPrime, bPrime));
-        double cMin = Math.min(rPrime, Math.min(gPrime, bPrime));
-        double delta = cMax - cMin;
-        double[] hsv = new double[3];
+    // private double[] convertRGBtoHSV(int[] rgb) {
+    //     double rPrime = (double) rgb[0]/31;
+    //     double gPrime = (double) rgb[1]/63;
+    //     double bPrime = (double) rgb[2]/31;
+    //     double cMax = Math.max(rPrime, Math.max(gPrime, bPrime));
+    //     double cMin = Math.min(rPrime, Math.min(gPrime, bPrime));
+    //     double delta = cMax - cMin;
+    //     double[] hsv = new double[3];
 
-        // calculate hue
-        if (delta == 0)
-            hsv[0] = 0;
-        else if (cMax == rPrime) {
-            double temp = ((gPrime - bPrime) / delta) % 6;
-            if (temp < 0)
-                temp += 6;
-            hsv[0] = 60 * temp;
-        }
-        else if (cMax == gPrime)
-            hsv[0] = 60 * (((bPrime - rPrime) / delta) + 2);
-        else
-            hsv[0] = 60 * (((rPrime - gPrime) / delta) + 4);
+    //     // calculate hue
+    //     if (delta == 0)
+    //         hsv[0] = 0;
+    //     else if (cMax == rPrime) {
+    //         double temp = ((gPrime - bPrime) / delta) % 6;
+    //         if (temp < 0)
+    //             temp += 6;
+    //         hsv[0] = 60 * temp;
+    //     }
+    //     else if (cMax == gPrime)
+    //         hsv[0] = 60 * (((bPrime - rPrime) / delta) + 2);
+    //     else
+    //         hsv[0] = 60 * (((rPrime - gPrime) / delta) + 4);
 
-        // calculate saturation
-        if (cMax == 0)
-            hsv[1] = 0;
-        else
-            hsv[1] = delta / cMax;
+    //     // calculate saturation
+    //     if (cMax == 0)
+    //         hsv[1] = 0;
+    //     else
+    //         hsv[1] = delta / cMax;
 
-        // calculate value
-        hsv[2] = cMax;
+    //     // calculate value
+    //     hsv[2] = cMax;
 
-        return hsv;
-    }
+    //     return hsv;
+    // }
 
     private int convertBitStringToInt(String s) {
         int sum = 0;
