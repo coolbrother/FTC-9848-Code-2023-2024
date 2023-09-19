@@ -288,7 +288,7 @@ public class EncoderNessieAuto extends LinearOpMode {
             // to artificially zoom in to the center of image.  For best results, the "aspectRatio" argument
             // should be set to the value of the images used to create the TensorFlow Object Detection model
             // (typically 16/9).
-            tfod.setZoom(1, 16.0 / 9.0);
+            tfod.setZoom(16.0 / 9.0);
         }
 
         if (tfod == null) {
@@ -327,10 +327,10 @@ public class EncoderNessieAuto extends LinearOpMode {
             int imgWidth = image.getWidth();
             int imgHeight = image.getHeight();
             int[] startingIndexes = getRowStartingIndexes(imgHeight, imgWidth, numberOfRowsToScanInImage);
-            for (int i = numberOfRowsToScanInImage; i < numberOfRowsToScanInImage; i++) {
+            for (int i = 0; i < numberOfRowsToScanInImage; i++) {
                 for (int j = startingIndexes[i]; j < startingIndexes[i] + imgWidth * 2; j += 8) {
                     if (getColor(pixelArray[j], pixelArray[j+1]))
-                        position[(double) (j - startingIndexes[i]) / (imgWidth * 2 / 3)]++;
+                        position[(int) ((double) (j - startingIndexes[i]) / (imgWidth * 2 / 3))]++;
                     // telemetry.addData("width", imgWidth);
                     // telemetry.addData("height", imgHeight);
                     // telemetry.addData("startingIndexes[i]", startingIndexes[i]);
@@ -371,7 +371,7 @@ public class EncoderNessieAuto extends LinearOpMode {
         return newArr;
     }
 
-    private int getColor(byte b1, byte b2) {
+    private boolean getColor(byte b1, byte b2) {
         // GGGBBBBB RRRRRGGG;
         String s1 = String.format("%8s", Integer.toBinaryString(b2 & 0xFF)).replace(' ', '0');
         String s2 = String.format("%8s", Integer.toBinaryString(b1 & 0xFF)).replace(' ', '0');
@@ -390,9 +390,7 @@ public class EncoderNessieAuto extends LinearOpMode {
         // telemetry.addData("b1", b1);
         // telemetry.addData("b2", b2);
         // telemetry.addData("hsv[2]", hsv[2]);
-        if (r > 16 || b > 16)
-            return true;
-        return false;
+        return convertBitStringToInt(r) > 16 || convertBitStringToInt(b) > 16;
     }
 
     // private double[] convertRGBtoHSV(int[] rgb) {

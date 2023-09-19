@@ -183,7 +183,7 @@ public class NessieTeleop extends LinearOpMode {
         // boolean currentDirectionForward = false;
 
         while(opModeIsActive()) {
-            telemetry.addData("currentDirectionForward", currentDirectionForward);
+//            telemetry.addData("currentDirectionForward", currentDirectionForward);
 
             //Driver 1
             drive = -gamepad1.left_stick_y;
@@ -352,8 +352,8 @@ public class NessieTeleop extends LinearOpMode {
         switch (ph) {
             case HIGH:
                 return 3600;
-            case MEDIUM:
-                return 2400;
+//            case MEDIUM:
+//                return 2400;
             case LOW:
                 return 1200;
             case GROUND:
